@@ -1,11 +1,20 @@
 Package: Beap
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Contains the functions used in the Beap lab for physical activity analysis
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "SeyedJavad",
+           family = "KhataeiPour",
+           role = c("aut", "cre"),
+           email = "s.khataeipour@mun.ca")
+Description: offers many physical activity analysis tools.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    lubridate,
+    activityCounts,
+    magrittr,
+    zoo,
+    e1071,
+    progress
+RoxygenNote: 6.1.1
