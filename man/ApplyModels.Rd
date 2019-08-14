@@ -17,7 +17,7 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
 
 \item{split_ratio}{training to test ratio}
 
-\item{shrink}{the faction od the data to be used for modeling. If modeling takes to long reduce this.}
+\item{shrink}{the fraction of the data to be used for modeling. If modeling takes to long reduce this.}
 
 \item{save_results}{if set to true results are saved}
 
