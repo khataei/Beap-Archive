@@ -4,9 +4,9 @@
 \alias{ApplyModels}
 \title{Title Apply various ML models to your datasets and compare the results}
 \usage{
-ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN"),
-  class_column_index = -1, split_ratio = 0.66, save_results = TRUE,
-  plot = TRUE)
+ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
+  "DT"), class_column_index = -1, split_ratio = 0.66, shrink = 1,
+  save_results = TRUE, plot = TRUE)
 }
 \arguments{
 \item{working_df}{input dataset for classification}
@@ -16,6 +16,8 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN"),
 \item{class_column_index}{the column index of the classes}
 
 \item{split_ratio}{training to test ratio}
+
+\item{shrink}{the faction od the data to be used for modeling. If modeling takes to long reduce this.}
 
 \item{save_results}{if set to true results are saved}
 

@@ -6,18 +6,21 @@
 #' @param save_results if set to true results are saved
 #' @param plot if true plots confusion matrix
 #' @param class_column_index the column index of the classes
+#' @param shrink the faction od the data to be used for modeling. If modeling takes to long reduce this.
 #'
 #' @return accuracies a dataframe containing model names and accuracies
 #'
 #' @import caret
 #' @importFrom rlang .data
+#' @importFrom dplyr slice
 #' @export
 #'
 ApplyModels <-
   function(working_df,
-             model_names = c("RF", "LDA", "NB", "SVM", "KNN"),
+             model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT" ),
              class_column_index = -1,
              split_ratio = 0.66,
+             shrink = 1,
              save_results = TRUE,
              plot = TRUE) {
     # Create train and test to train and evalute the model
@@ -29,8 +32,9 @@ ApplyModels <-
         list = FALSE
       )
 
-    training_df <- working_df %>% slice(training_indices)
-    testing_df <- working_df %>% slice(-training_indices)
+    working_df %<>% sample_frac(shrink)
+    training_df <- working_df %>% dplyr::slice(training_indices)
+    testing_df <- working_df %>% dplyr::slice(-training_indices)
 
     # To store the model and all the performance metric
     results <- NULL
@@ -167,6 +171,7 @@ ApplyModels <-
           scale_fill_gradient(low = "beige", high = muted("chocolate")) +
           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
           ggtitle(model_name)
+          plot(plot)
       }
     }
 
@@ -361,18 +366,74 @@ ApplyModels <-
           model = model_A_svm,
           train_control_method = train_control_method,
           tune_parameters = c(model_degree, model_scale, model_C),
-          cf_matrix = cf_matrix,
-          predictions = pred
+          cf_matrix = cf_matrix
         )
+    }
+
+    # -------------------------- DT ------------------------
+    if ("DT" %in% model_names) {
+        model_name <- "C5.0"
+        train_control_method <- "none"
+        model_trails <- 10
+        model_model <- "C5.0"
+        model_winnow <- FALSE
+
+        fitControl <-
+            trainControl(method = train_control_method, classProbs = TRUE)
+
+
+        model_A_DT <- train(
+            trimmed_activity ~ .,
+            data = training_df,
+            method = model_name,
+            trControl = fitControl,
+            verbose = FALSE,
+            tuneGrid = data.frame( trials = model_trails, model = model_model, winnow = model_winnow
+            ),
+            metric = "ROC"
+        )
+
+        pred <- predict(model_A_DT, newdata = testing_df)
+
+        cf_matrix <-
+            confusionMatrix(
+                data = pred,
+                reference = testing_df$trimmed_activity,
+                mode = "prec_recall"
+            )
+
+        # Calculate accuracy and F1
+        accuracies["DT", "Acc"] <-
+            mean(pred == testing_df$trimmed_activity)
+
+        accuracies["DT", "F1"] <-
+            F1_Score(
+                y_true = testing_df$trimmed_activity,
+                y_pred = pred
+            )
+
+        # Create a list of the model and the results to save
+        results[["DT"]] <-
+            list(
+                split_seed = seed,
+                model_name = model_name,
+                model = model_A_svm,
+                train_control_method = train_control_method,
+                tune_parameters = c(model_trails, model_model, model_winnow),
+                cf_matrix = cf_matrix
+            )
+
     }
 
 
     # ---------------------------- save the results ----------------------
 
     if (save_results) {
+        fname <- paste0("Model_results_", as.numeric(now()), ".RData")
       save(results,
-        file = paste0("Model_results_", as.numeric(now()), ".RData")
+        file = fname
       )
+      message(paste0("The models are stored in", fname))
     }
     return(accuracies)
   }

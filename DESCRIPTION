@@ -18,5 +18,6 @@ Imports:
     e1071,
     progress,
     caret,
-    rlang
+    rlang,
+    dplyr
 RoxygenNote: 6.1.1
