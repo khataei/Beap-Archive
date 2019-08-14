@@ -16,5 +16,7 @@ Imports:
     magrittr,
     zoo,
     e1071,
-    progress
+    progress,
+    caret,
+    rlang
 RoxygenNote: 6.1.1

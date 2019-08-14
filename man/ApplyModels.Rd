@@ -22,7 +22,7 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN"),
 \item{plot}{if true plots confusion matrix}
 }
 \value{
-
+accuracies a dataframe containing model names and accuracies
 }
 \description{
 Title Apply various ML models to your datasets and compare the results
