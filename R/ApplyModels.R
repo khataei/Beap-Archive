@@ -5,7 +5,6 @@
 #' @param split_ratio training to test ratio
 #' @param save_results if set to true results are saved
 #' @param plot if true plots confusion matrix
-#' @param class_column_index the column index of the classes
 #' @param shrink the fraction of the data to be used for modeling. If modeling takes to long reduce this.
 #'
 #' @return accuracies a dataframe containing model names and accuracies
@@ -18,7 +17,6 @@
 ApplyModels <-
     function(working_df,
              model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT"),
-             class_column_index = -1,
              split_ratio = 0.66,
              shrink = 1,
              save_results = TRUE,
@@ -26,14 +24,19 @@ ApplyModels <-
         # Create train and test to train and evalute the model
         seed <- 2020
         set.seed(seed)
+
+        working_df %<>% sample_frac(shrink)
+        message(paste0(shrink*100, " % of the data will be used"))
+
         training_indices <-
             createDataPartition(working_df$trimmed_activity,
                                 p = split_ratio,
                                 list = FALSE)
 
-        working_df %<>% sample_frac(shrink)
         training_df <- working_df %>% dplyr::slice(training_indices)
         testing_df <- working_df %>% dplyr::slice(-training_indices)
+        message(paste0("Data is devided into training and test set "))
+
 
         # To store the model and all the performance metric
         results <- NULL
