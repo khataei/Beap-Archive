@@ -430,7 +430,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_svm,
+                    model = model_A_DT,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_trails, model_model, model_winnow),
                     cf_matrix = cf_matrix
