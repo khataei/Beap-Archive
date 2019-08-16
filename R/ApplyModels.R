@@ -94,13 +94,16 @@ ApplyModels <-
                 )
 
             if (plot) {
-                cf_matrix$table %>%
+               plt <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
+               print(plt)
+
+
             }
         }
 
@@ -165,14 +168,15 @@ ApplyModels <-
 
 
             if (plot) {
-                cf_matrix$table %>%
+                plt <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-                plot(plot)
+
+                print(plt)
             }
         }
 
@@ -189,7 +193,7 @@ ApplyModels <-
             model_adjust <- 1.5
 
             fitControl <-
-                trainControl(method = train_control_method, classProbs = TRUE)
+                trainControl(method = train_control_method  , classProbs =  TRUE)
 
 
             model_A_nb <- train(
@@ -199,8 +203,8 @@ ApplyModels <-
                 trControl = fitControl,
                 verbose = FALSE,
                 tuneGrid = data.frame(
-                    fL = model_fL,
-                    usekernel = model_usekernel,
+                    fL = model_fL ,
+                    usekernel = model_usekernel ,
                     adjust = model_adjust
                 ),
                 metric = "ROC"
@@ -210,10 +214,11 @@ ApplyModels <-
 
             cf_matrix <-
                 confusionMatrix(
-                    data = pred,
+                    data = pred ,
                     reference = testing_df$trimmed_activity,
                     mode = "prec_recall"
                 )
+
             # Calculate accuracy and F1
             accuracies["NB", "Acc"] <-
                 mean(pred == testing_df$trimmed_activity)
@@ -233,13 +238,14 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
             if (plot) {
-                cf_matrix$table %>%
+               plt <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
+               print(plt)
             }
         }
 
@@ -302,12 +308,15 @@ ApplyModels <-
                 )
 
             if (plot) {
-                cf_matrix$table %>%
+                plt <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
-                    scale_fill_gradient(low = "gray99", high = muted("deepskyblue4")) +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                    scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                    ggtitle(model_name)
+
+                print(plt)
             }
         }
 
@@ -365,6 +374,18 @@ ApplyModels <-
                     tune_parameters = c(model_degree, model_scale, model_C),
                     cf_matrix = cf_matrix
                 )
+
+            if (plot) {
+                plt <- cf_matrix$table %>%
+                    data.frame() %>%
+                    ggplot(aes(Prediction, Reference)) +
+                    geom_tile(aes(fill = Freq), colour = "gray50") +
+                    scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                    ggtitle(model_name)
+
+                print(plt)
+            }
         }
 
         # -------------------------- DT ------------------------
@@ -421,6 +442,18 @@ ApplyModels <-
                     tune_parameters = c(model_trails, model_model, model_winnow),
                     cf_matrix = cf_matrix
                 )
+
+            if (plot) {
+                plt <- cf_matrix$table %>%
+                    data.frame() %>%
+                    ggplot(aes(Prediction, Reference)) +
+                    geom_tile(aes(fill = Freq), colour = "gray50") +
+                    scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                    ggtitle(model_name)
+
+                print(plt)
+            }
 
         }
 
