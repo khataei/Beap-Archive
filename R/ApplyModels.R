@@ -3,8 +3,8 @@
 #' @param working_df input dataset for classification
 #' @param model_names a list of models to be appied on the data
 #' @param split_ratio training to test ratio
-#' @param save_results if set to true results are saved
-#' @param plot if true plots confusion matrix
+#' @param save_results_on_disk if set to true results are saved
+#' @param return_plots if true returns plots confusion matrix
 #' @param shrink the fraction of the data to be used for modeling. If modeling takes to long reduce this.
 #'
 #' @return accuracies a dataframe containing model names and accuracies
@@ -19,8 +19,8 @@ ApplyModels <-
              model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT"),
              split_ratio = 0.66,
              shrink = 1,
-             save_results = TRUE,
-             plot = TRUE) {
+             save_results_on_disk = TRUE,
+             return_plots = TRUE) {
         # Create train and test to train and evalute the model
         seed <- 2020
         set.seed(seed)
@@ -40,6 +40,9 @@ ApplyModels <-
 
         # To store the model and all the performance metric
         results <- NULL
+
+        # To store plots
+        plts <- NULL
 
         # To return main results for each model
         accuracies <- data.frame(row.names = model_names)
@@ -93,17 +96,14 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
 
-            if (plot) {
-               plt <-  cf_matrix$table %>%
+            if (return_plots) {
+               plts[["LDA"]] <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-               print(plt)
-
-
             }
         }
 
@@ -167,16 +167,14 @@ ApplyModels <-
                 )
 
 
-            if (plot) {
-                plt <- cf_matrix$table %>%
+            if (return_plots) {
+                plts[["RF"]] <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-
-                print(plt)
             }
         }
 
@@ -237,15 +235,14 @@ ApplyModels <-
                     tune_parameters = c(model_fL, model_usekernel, model_adjust),
                     cf_matrix = cf_matrix
                 )
-            if (plot) {
-               plt <-  cf_matrix$table %>%
+            if (return_plots) {
+               plts[["NB"]] <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-               print(plt)
             }
         }
 
@@ -307,16 +304,14 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
 
-            if (plot) {
-                plt <- cf_matrix$table %>%
+            if (return_plots) {
+                plts[["KNN"]] <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-
-                print(plt)
             }
         }
 
@@ -375,16 +370,14 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
 
-            if (plot) {
-                plt <- cf_matrix$table %>%
+            if (return_plots) {
+                plts[["SVM"]] <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-
-                print(plt)
             }
         }
 
@@ -443,16 +436,14 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
 
-            if (plot) {
-                plt <- cf_matrix$table %>%
+            if (return_plots) {
+                plts[["DT"]] <- cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle(model_name)
-
-                print(plt)
             }
 
         }
@@ -460,7 +451,7 @@ ApplyModels <-
 
         # ---------------------------- save the results ----------------------
 
-        if (save_results) {
+        if (save_results_on_disk) {
             fname <- paste0("Model_results_", as.numeric(now()), ".RData")
             save(results,
                  file = fname)
@@ -469,5 +460,5 @@ ApplyModels <-
 
         #corrplot(M, method="circle")
 
-        return(accuracies)
+        return(accuracies,plts)
     }

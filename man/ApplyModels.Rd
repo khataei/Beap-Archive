@@ -5,8 +5,8 @@
 \title{Title Apply various ML models to your datasets and compare the results}
 \usage{
 ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
-  "DT"), split_ratio = 0.66, shrink = 1, save_results = TRUE,
-  plot = TRUE)
+  "DT"), split_ratio = 0.66, shrink = 1, save_results_on_disk = TRUE,
+  return_plots = TRUE)
 }
 \arguments{
 \item{working_df}{input dataset for classification}
@@ -17,9 +17,9 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
 
 \item{shrink}{the fraction of the data to be used for modeling. If modeling takes to long reduce this.}
 
-\item{save_results}{if set to true results are saved}
+\item{save_results_on_disk}{if set to true results are saved}
 
-\item{plot}{if true plots confusion matrix}
+\item{return_plots}{if true returns plots confusion matrix}
 }
 \value{
 accuracies a dataframe containing model names and accuracies
