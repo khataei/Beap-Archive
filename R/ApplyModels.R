@@ -7,7 +7,7 @@
 #' @param return_plots if true returns plots confusion matrix
 #' @param shrink the fraction of the data to be used for modeling. If modeling takes to long reduce this.
 #'
-#' @return accuracies a dataframe containing model names and accuracies
+#' @return output a list containing a dataframe containing model names and accuracies and a list of plots
 #'
 #' @import caret
 #' @importFrom rlang .data
@@ -103,7 +103,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("LDA")
             }
         }
 
@@ -174,7 +174,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("RF")
             }
         }
 
@@ -242,7 +242,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("NB")
             }
         }
 
@@ -311,7 +311,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("KNN")
             }
         }
 
@@ -377,7 +377,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("SVM")
             }
         }
 
@@ -443,7 +443,7 @@ ApplyModels <-
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    ggtitle(model_name)
+                    ggtitle("DT")
             }
 
         }
@@ -460,5 +460,6 @@ ApplyModels <-
 
         #corrplot(M, method="circle")
 
-        return(accuracies,plts)
+        output <- list("Model-Accuracy"= accuracies,"Plots" = plts)
+        return(output)
     }
