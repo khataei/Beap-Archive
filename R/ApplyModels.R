@@ -53,6 +53,9 @@ ApplyModels <-
         # To store plots
         plts <- NULL
 
+        # To store confusion matrix
+        cf_mat <- NULL
+
         # To return main results for each model
         accuracies <- data.frame(row.names = model_names)
 
@@ -93,6 +96,7 @@ ApplyModels <-
             accuracies["LDA", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["LDA"] <- cf_matrix
 
             # create a list of the model and the results to save
             results[["LDA"]] <-
@@ -164,6 +168,7 @@ ApplyModels <-
             accuracies["RF", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["RF"] <- cf_matrix
 
             # Create a list of the model and the results to save
             results[["RF"]] <-
@@ -235,6 +240,7 @@ ApplyModels <-
             accuracies["NB", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["NB"] <- cf_matrix
 
             # Create a list of the model and the results to save
             results[["NB"]] <-
@@ -304,6 +310,7 @@ ApplyModels <-
             accuracies["KNN", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["KNN"] <- cf_matrix
 
             # Create a list of the model and the results to save
             results[["KNN"]] <-
@@ -371,6 +378,7 @@ ApplyModels <-
             accuracies["SVM", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["SVM"] <- cf_matrix
 
             # Create a list of the model and the results to save
             results[["SVM"]] <-
@@ -431,13 +439,14 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-            # Calculate accuracy and F1
+            # Calculate accuracy and F1 and save cf_matrix
             accuracies["DT", "Acc"] <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["DT", "F1"] <-
                 F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
+            cf_mat["DT"] <- cf_matrix
 
             # Create a list of the model and the results to save
             results[["DT"]] <-
@@ -478,6 +487,6 @@ ApplyModels <-
         # stopCluster(cl)
         #
         # toc()
-        output <- list("Model-Accuracy"= accuracies,"Plots" = plts)
+        output <- list("Model-Accuracy"= accuracies,"Plots" = plts, cf_mat)
         return(output)
     }
