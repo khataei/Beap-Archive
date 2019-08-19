@@ -25,7 +25,6 @@ ApplyModels <-
              return_plots = TRUE) {
 
         # # Parallel and time to see if caret parallel works
-        # # update: It didn't. to check add #' @import tictoc and #' @import doParallel
         tic("Preprocessing")
         cl <- makePSOCKcluster(5)
         registerDoParallel(cl)
