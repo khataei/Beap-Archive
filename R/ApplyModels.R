@@ -26,9 +26,9 @@ ApplyModels <-
 
         # # Parallel and time to see if caret parallel works
         # # update: It didn't. to check add #' @import tictoc and #' @import doParallel
-        # tic("Time")
-        # cl <- makePSOCKcluster(50)
-        # registerDoParallel(cl)
+        tic("Preprocessing")
+        cl <- makePSOCKcluster(5)
+        registerDoParallel(cl)
 
         # Create train and test to train and evalute the model
         seed <- 2020
@@ -59,9 +59,13 @@ ApplyModels <-
         # To return main results for each model
         accuracies <- data.frame(row.names = model_names)
 
+        # The end of preprocessing step
+        toc()
+
 
         # ------------------------------------- LDA --------------------------------------
         if ("LDA" %in% model_names) {
+            tic("LDA took")
             message("Starting LDA")
             model_name <- "lda"
             train_control_method <- "none"
@@ -119,6 +123,7 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("LDA")
             }
+            toc()
         }
 
 
@@ -127,6 +132,7 @@ ApplyModels <-
         if ("RF" %in% model_names) {
             # Ranger is a fast implementation of random forests (Breiman 2001)
             # The method is none becuase we have test and train data
+            tic("RF took")
             message("Starting RF")
             fitControl <-
                 trainControl(method = "none", classProbs = TRUE)
@@ -192,6 +198,7 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("RF")
             }
+            toc()
         }
 
 
@@ -199,6 +206,7 @@ ApplyModels <-
         #---------------------------------- Naive Bayes Classifier ----------------------------
         if ("NB" %in% model_names) {
             # The method is none becuase we have test and train data
+            tic("NB took:")
             message("Starting NB")
             model_name <- "nb"
             train_control_method <- "none"
@@ -262,6 +270,7 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("NB")
             }
+            toc()
         }
 
 
@@ -271,6 +280,7 @@ ApplyModels <-
         if ("KNN" %in% model_names) {
             # using kknn package
             # The method is none becuase we have test and train data
+            tic("KNN took")
             fitControl <-
                 trainControl(method = "none", classProbs = TRUE)
             model_name <- "kknn"
@@ -333,12 +343,14 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("KNN")
             }
+            toc()
         }
 
         #------------------------------ Support Vector Machines with Polynomial Kernel ----------------------
         if ("SVM" %in% model_names) {
             # using  kernlab package
             # The method is none becuase we have test and train data
+            tic("SVM took")
             message("Starting SVM")
             fitControl <-
                 trainControl(method = "none", classProbs = TRUE)
@@ -401,10 +413,12 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("SVM")
             }
+            toc()
         }
 
         # -------------------------- DT ------------------------
         if ("DT" %in% model_names) {
+            tic("DT took")
             message("Starting DT")
             model_name <- "C5.0"
             train_control_method <- "none"
@@ -469,7 +483,7 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("DT")
             }
-
+            toc()
         }
 
 
@@ -483,10 +497,9 @@ ApplyModels <-
         }
 
 
-        # to check parallel calculation
-        # stopCluster(cl)
-        #
-        # toc()
+        # To stop parallel calculation
+        stopCluster(cl)
+
         output <- list("Model-Accuracy"= accuracies,"Plots" = plts, cf_mat)
         return(output)
     }
