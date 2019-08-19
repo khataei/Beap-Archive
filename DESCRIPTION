@@ -19,5 +19,7 @@ Imports:
     progress,
     caret,
     rlang,
-    dplyr
+    dplyr,
+    doParallel,
+    tictoc
 RoxygenNote: 6.1.1

@@ -12,6 +12,8 @@
 #' @import caret
 #' @importFrom rlang .data
 #' @importFrom dplyr slice
+#' @import tictoc
+#' @import doParallel
 #' @export
 #'
 ApplyModels <-
@@ -21,6 +23,13 @@ ApplyModels <-
              shrink = 1,
              save_results_on_disk = TRUE,
              return_plots = TRUE) {
+
+        # # Parallel and time to see if caret parallel works
+        # # update: It didn't. to check add #' @import tictoc and #' @import doParallel
+        # tic("Time")
+        # cl <- makePSOCKcluster(50)
+        # registerDoParallel(cl)
+
         # Create train and test to train and evalute the model
         seed <- 2020
         set.seed(seed)
@@ -102,6 +111,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("LDA")
             }
@@ -173,6 +183,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("RF")
             }
@@ -241,6 +252,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("NB")
             }
@@ -310,6 +322,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("KNN")
             }
@@ -376,6 +389,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("SVM")
             }
@@ -442,6 +456,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq))+
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("DT")
             }
@@ -458,8 +473,11 @@ ApplyModels <-
             message(paste0("The models are stored in", fname))
         }
 
-        #corrplot(M, method="circle")
 
+        # to check parallel calculation
+        # stopCluster(cl)
+        #
+        # toc()
         output <- list("Model-Accuracy"= accuracies,"Plots" = plts)
         return(output)
     }
