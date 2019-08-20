@@ -12,8 +12,11 @@
 #' @import caret
 #' @importFrom rlang .data
 #' @importFrom dplyr slice
-#' @import tictoc
-#' @import doParallel
+#' @importFrom tictoc tic
+#' @importFrom tictoc toc
+#' @importFrom parallel makePSOCKcluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel stopCluster
 #' @export
 #'
 ApplyModels <-
@@ -23,7 +26,6 @@ ApplyModels <-
              shrink = 1,
              save_results_on_disk = TRUE,
              return_plots = TRUE) {
-
         # # Parallel and time to see if caret parallel works
         tic("Preprocessing")
         cl <- makePSOCKcluster(5)
@@ -34,7 +36,7 @@ ApplyModels <-
         set.seed(seed)
 
         working_df %<>% sample_frac(shrink)
-        message(paste0(shrink*100, " % of the data will be used"))
+        message(paste0(shrink * 100, " % of the data will be used"))
 
         training_indices <-
             createDataPartition(working_df$trimmed_activity,
@@ -113,12 +115,12 @@ ApplyModels <-
                 )
 
             if (return_plots) {
-               plts[["LDA"]] <-  cf_matrix$table %>%
+                plts[["LDA"]] <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("LDA")
             }
@@ -193,7 +195,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("RF")
             }
@@ -260,12 +262,12 @@ ApplyModels <-
                     cf_matrix = cf_matrix
                 )
             if (return_plots) {
-               plts[["NB"]] <-  cf_matrix$table %>%
+                plts[["NB"]] <-  cf_matrix$table %>%
                     data.frame() %>%
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("NB")
             }
@@ -338,7 +340,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("KNN")
             }
@@ -408,7 +410,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("SVM")
             }
@@ -478,7 +480,7 @@ ApplyModels <-
                     ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
-                    geom_text(aes(label = Freq))+
+                    geom_text(aes(label = Freq)) +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("DT")
             }
@@ -499,6 +501,11 @@ ApplyModels <-
         # To stop parallel calculation
         stopCluster(cl)
 
-        output <- list("Model-Accuracy"= accuracies,"Plots" = plts, cf_mat)
+        output <-
+            list(
+                "Model-Accuracy" = accuracies,
+                "Plots" = plts,
+                "Confusion-Matrices" = cf_mat
+            )
         return(output)
     }

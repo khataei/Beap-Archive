@@ -11,6 +11,12 @@ ApplyNN(raw_df, n_var)
 
 \item{n_var}{number of predictors. i, e. independent variables}
 }
+\value{
+results
+}
 \description{
 Title
+}
+\examples{
+
 }
