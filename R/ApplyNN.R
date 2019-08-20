@@ -6,7 +6,6 @@
 #' @return results
 #' @export
 #'
-#' @examples
 #'
 ApplyNN <- function(raw_df , n_var){
 

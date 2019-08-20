@@ -13,7 +13,7 @@
 #' @import zoo
 #' @import e1071
 #' @import progress
-#'
+#' @importFrom rlang .data
 #'
 #' @examples
 #'
@@ -24,7 +24,8 @@
 #' sampling_freq <- 100
 #'
 #' # prepare the dataset by setting proper column names
-#' raw_df <- sampleXYZ %>% rename("x_axis" = accelerometer_X, "y_axis" = accelerometer_Y, "z_axis" = accelerometer_Z)
+#' raw_df <- sampleXYZ %>% rename("x_axis" = accelerometer_X,
+#'  "y_axis" = accelerometer_Y, "z_axis" = accelerometer_Z)
 #'
 #' # consider a one second window
 #' window_size_sec <- 1

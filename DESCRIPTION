@@ -22,5 +22,7 @@ Imports:
     dplyr,
     doParallel,
     tictoc,
-    parallel
+    parallel,
+    MLmetrics,
+    ggplot2
 RoxygenNote: 6.1.1

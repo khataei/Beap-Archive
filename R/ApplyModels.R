@@ -17,6 +17,8 @@
 #' @importFrom parallel makePSOCKcluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel stopCluster
+#' @importFrom MLmetrics F1_Score
+#' @import ggplot2
 #' @export
 #'
 ApplyModels <-
@@ -35,7 +37,7 @@ ApplyModels <-
         seed <- 2020
         set.seed(seed)
 
-        working_df %<>% sample_frac(shrink)
+        working_df %<>% dplyr::sample_frac(shrink)
         message(paste0(shrink * 100, " % of the data will be used"))
 
         training_indices <-
@@ -85,7 +87,7 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- predict(model_A, newdata = testing_df)
+            pred <- stats::predict(model_A, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -99,7 +101,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["LDA", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["LDA"] <- cf_matrix
 
@@ -117,7 +119,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["LDA"]] <-  cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
@@ -158,7 +160,7 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- predict(model_A_rf, newdata = testing_df)
+            pred <- stats::predict(model_A_rf, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -173,7 +175,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["RF", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["RF"] <- cf_matrix
 
@@ -192,7 +194,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["RF"]] <- cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
@@ -233,7 +235,7 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- predict(model_A_nb, newdata = testing_df)
+            pred <- stats::predict(model_A_nb, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -247,7 +249,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["NB", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["NB"] <- cf_matrix
 
@@ -264,7 +266,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["NB"]] <-  cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
@@ -306,7 +308,7 @@ ApplyModels <-
                 metric = "Accuracy"
             )
 
-            pred <- predict(model_A_kknn, newdata = testing_df)
+            pred <- stats::predict(model_A_kknn, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -319,7 +321,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["KNN", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["KNN"] <- cf_matrix
 
@@ -337,7 +339,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["KNN"]] <- cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
@@ -375,7 +377,7 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- predict(model_A_svm, newdata = testing_df)
+            pred <- stats::predict(model_A_svm, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -389,7 +391,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["SVM", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["SVM"] <- cf_matrix
 
@@ -407,7 +409,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["SVM"]] <- cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
@@ -445,7 +447,7 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- predict(model_A_DT, newdata = testing_df)
+            pred <- stats::predict(model_A_DT, newdata = testing_df)
 
             cf_matrix <-
                 confusionMatrix(
@@ -459,7 +461,7 @@ ApplyModels <-
                 mean(pred == testing_df$trimmed_activity)
 
             accuracies["DT", "F1"] <-
-                F1_Score(y_true = testing_df$trimmed_activity,
+                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["DT"] <- cf_matrix
 
@@ -477,7 +479,7 @@ ApplyModels <-
             if (return_plots) {
                 plts[["DT"]] <- cf_matrix$table %>%
                     data.frame() %>%
-                    ggplot(aes(Prediction, Reference)) +
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
                     geom_tile(aes(fill = Freq), colour = "gray50") +
                     scale_fill_gradient(low = "beige", high = muted("chocolate")) +
                     geom_text(aes(label = Freq)) +
