@@ -24,5 +24,6 @@ Imports:
     tictoc,
     parallel,
     MLmetrics,
-    ggplot2
+    ggplot2,
+    data.table
 RoxygenNote: 6.1.1

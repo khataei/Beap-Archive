@@ -17,7 +17,7 @@
 #' @importFrom parallel makePSOCKcluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel stopCluster
-#' @importFrom MLmetrics F1_Score
+#' @importFrom data.table transpose
 #' @import ggplot2
 #' @export
 #'
@@ -48,9 +48,8 @@ ApplyModels <-
         training_df <- working_df %>% dplyr::slice(training_indices)
         testing_df <- working_df %>% dplyr::slice(-training_indices)
         message(paste0("Data is devided into training and test set "))
-        message(paste0("Training set size is: ",dim(training_df)))
-        message(paste0("Test set size is: ",dim(testing_df)))
-
+        message(paste0("Training and test set sizes are:"))
+        message(dim(training_df), dim(testing_df))
 
         # To store the model and all the performance metric
         results <- NULL
@@ -62,7 +61,7 @@ ApplyModels <-
         cf_mat <- NULL
 
         # To return main results for each model
-        accuracies <- data.frame(row.names = model_names)
+        accuracies <- NULL
 
         # The end of preprocessing step
         toc()
@@ -91,6 +90,29 @@ ApplyModels <-
 
             pred <- stats::predict(model_A, newdata = testing_df)
 
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$LDA <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
                     data = pred,
@@ -98,20 +120,6 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-            # Calculate and store ML metrics
-            accuracies["LDA", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
-
-            accuracies["LDA", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["LDA"] <- cf_matrix
-            accuracies["LDA", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                    y_pred = pred)
-            accuracies["LDA", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                               y_pred = pred)
 
             # create a list of the model and the results to save
             results[["LDA"]] <-
@@ -168,8 +176,31 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- stats::predict(model_A_rf, newdata = testing_df)
+            pred <- stats::predict(model_A, newdata = testing_df)
 
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$RF <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
                     data = pred,
@@ -177,21 +208,6 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-
-            # Calculate accuracy and F1
-            accuracies["RF", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
-
-            accuracies["RF", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["RF"] <- cf_matrix
-            accuracies["RF", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
-            accuracies["RF", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["RF"]] <-
@@ -249,29 +265,38 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- stats::predict(model_A_nb, newdata = testing_df)
+            pred <- stats::predict(model_A, newdata = testing_df)
 
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$NB <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
-                    data = pred ,
+                    data = pred,
                     reference = testing_df$trimmed_activity,
                     mode = "prec_recall"
                 )
 
-            # Calculate accuracy and F1
-            accuracies["NB", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
-
-            accuracies["NB", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["NB"] <- cf_matrix
-            accuracies["NB", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
-            accuracies["NB", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["NB"]] <-
@@ -328,28 +353,39 @@ ApplyModels <-
                 metric = "Accuracy"
             )
 
-            pred <- stats::predict(model_A_kknn, newdata = testing_df)
 
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$KNN <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
                     data = pred,
                     reference = testing_df$trimmed_activity,
                     mode = "prec_recall"
                 )
-            # Calculate accuracy and F1
-            accuracies["KNN", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
 
-            accuracies["KNN", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["KNN"] <- cf_matrix
-            accuracies["KNN", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
-            accuracies["KNN", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["KNN"]] <-
@@ -403,8 +439,31 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- stats::predict(model_A_svm, newdata = testing_df)
+            pred <- stats::predict(model_A, newdata = testing_df)
 
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$SVM <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
                     data = pred,
@@ -412,20 +471,6 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-            # Calculate accuracy and F1
-            accuracies["SVM", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
-
-            accuracies["SVM", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["SVM"] <- cf_matrix
-            accuracies["SVM", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
-            accuracies["SVM", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["SVM"]] <-
@@ -479,8 +524,31 @@ ApplyModels <-
                 metric = "ROC"
             )
 
-            pred <- stats::predict(model_A_DT, newdata = testing_df)
+            pred <- stats::predict(model_A, newdata = testing_df)
 
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            accuracies$DT <- metrics
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
             cf_matrix <-
                 confusionMatrix(
                     data = pred,
@@ -488,20 +556,6 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-            # Calculate accuracy and F1 and save cf_matrix
-            accuracies["DT", "Acc"] <-
-                mean(pred == testing_df$trimmed_activity)
-
-            accuracies["DT", "F1"] <-
-                MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
-                         y_pred = pred)
-            cf_mat["DT"] <- cf_matrix
-            accuracies["DT", "PR_AUC"] <-
-                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
-            accuracies["DT", "ROC_AUC"] <-
-                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
-                                 y_pred = pred)
 
 
             # Create a list of the model and the results to save
