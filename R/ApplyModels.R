@@ -48,8 +48,21 @@ ApplyModels <-
         training_df <- working_df %>% dplyr::slice(training_indices)
         testing_df <- working_df %>% dplyr::slice(-training_indices)
         message(paste0("Data is devided into training and test set "))
-        message(paste0("Training and test set sizes are:"))
-        message(dim(training_df), dim(testing_df))
+        message(paste0(
+            "Training set has ",
+            nrow(training_df),
+            " rows and ",
+            ncol(training_df),
+            " columns"
+        ))
+        message(paste0(
+            "Testing set has ",
+            nrow(testing_df),
+            " rows and ",
+            ncol(testing_df),
+            " columns"
+        ))
+
 
         # To store the model and all the performance metric
         results <- NULL
@@ -107,7 +120,8 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$LDA <- metrics
+            rownames(metrics) <- "LDA"
+            accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -162,7 +176,7 @@ ApplyModels <-
             model_min_node_size <- 10
 
 
-            model_A_rf <- train(
+            model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
                 method = model_name,
@@ -195,7 +209,9 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$RF <- metrics
+            rownames(metrics) <- "RF"
+                        accuracies  %<>%  rbind(metrics)
+
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -214,7 +230,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_rf,
+                    model = model_A,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_mtry, model_splitrule, model_min_node_size),
                     cf_matrix = cf_matrix
@@ -251,7 +267,7 @@ ApplyModels <-
                 trainControl(method = train_control_method  , classProbs =  TRUE)
 
 
-            model_A_nb <- train(
+            model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
                 method = model_name,
@@ -284,7 +300,8 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$NB <- metrics
+            rownames(metrics) <- "NB"
+                        accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -303,7 +320,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_nb,
+                    model = model_A,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_fL, model_usekernel, model_adjust),
                     cf_matrix = cf_matrix
@@ -339,7 +356,7 @@ ApplyModels <-
                 2 # 1 for Manhatan , 2 for Euclidean distance
 
 
-            model_A_kknn <- train(
+            model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
                 method = model_name,
@@ -373,7 +390,8 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$KNN <- metrics
+            rownames(metrics) <- "KNN"
+                        accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -392,7 +410,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_kknn,
+                    model = model_A,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_kmax, model_kernel, model_distance),
                     cf_matrix = cf_matrix
@@ -425,7 +443,7 @@ ApplyModels <-
             model_scale <- 1
             model_C <- 0.1
 
-            model_A_svm <- train(
+            model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
                 method = model_name,
@@ -458,7 +476,8 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$SVM <- metrics
+            rownames(metrics) <- "SVM"
+                        accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -477,7 +496,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_svm,
+                    model = model_A,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_degree, model_scale, model_C),
                     cf_matrix = cf_matrix
@@ -510,7 +529,7 @@ ApplyModels <-
                 trainControl(method = train_control_method, classProbs = TRUE)
 
 
-            model_A_DT <- train(
+            model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
                 method = model_name,
@@ -543,7 +562,8 @@ ApplyModels <-
             metric_names <- rownames(metrics)
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
-            accuracies$DT <- metrics
+            rownames(metrics) <- "DT"
+                        accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -563,7 +583,7 @@ ApplyModels <-
                 list(
                     split_seed = seed,
                     model_name = model_name,
-                    model = model_A_DT,
+                    model = model_A,
                     train_control_method = train_control_method,
                     tune_parameters = c(model_trails, model_model, model_winnow),
                     cf_matrix = cf_matrix
