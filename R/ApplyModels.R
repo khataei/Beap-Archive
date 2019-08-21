@@ -48,6 +48,8 @@ ApplyModels <-
         training_df <- working_df %>% dplyr::slice(training_indices)
         testing_df <- working_df %>% dplyr::slice(-training_indices)
         message(paste0("Data is devided into training and test set "))
+        message(paste0("Training set size is: ",dim(training_df)))
+        message(paste0("Test set size is: ",dim(testing_df)))
 
 
         # To store the model and all the performance metric
@@ -96,7 +98,7 @@ ApplyModels <-
                     mode = "prec_recall"
                 )
 
-            # Calculate accuracy and F1
+            # Calculate and store ML metrics
             accuracies["LDA", "Acc"] <-
                 mean(pred == testing_df$trimmed_activity)
 
@@ -104,6 +106,12 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["LDA"] <- cf_matrix
+            accuracies["LDA", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                    y_pred = pred)
+            accuracies["LDA", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                               y_pred = pred)
 
             # create a list of the model and the results to save
             results[["LDA"]] <-
@@ -178,6 +186,12 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["RF"] <- cf_matrix
+            accuracies["RF", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+            accuracies["RF", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["RF"]] <-
@@ -252,6 +266,12 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["NB"] <- cf_matrix
+            accuracies["NB", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+            accuracies["NB", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["NB"]] <-
@@ -324,6 +344,12 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["KNN"] <- cf_matrix
+            accuracies["KNN", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+            accuracies["KNN", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["KNN"]] <-
@@ -394,6 +420,12 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["SVM"] <- cf_matrix
+            accuracies["SVM", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+            accuracies["SVM", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                               y_pred = pred)
 
             # Create a list of the model and the results to save
             results[["SVM"]] <-
@@ -464,6 +496,13 @@ ApplyModels <-
                 MLmetrics::F1_Score(y_true = testing_df$trimmed_activity,
                          y_pred = pred)
             cf_mat["DT"] <- cf_matrix
+            accuracies["DT", "PR_AUC"] <-
+                MLmetrics::PRAUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+            accuracies["DT", "ROC_AUC"] <-
+                MLmetrics::AUC(y_true = testing_df$trimmed_activity,
+                                 y_pred = pred)
+
 
             # Create a list of the model and the results to save
             results[["DT"]] <-

@@ -17,6 +17,3 @@ results
 \description{
 Title
 }
-\examples{
-
-}
