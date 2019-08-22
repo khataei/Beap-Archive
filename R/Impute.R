@@ -1,4 +1,5 @@
-#' Title
+#' Title Impute NA values by randomly select k values whitin the time_period_length
+#'  and taking their average and using it to impute
 #'
 #' @param data The input dataset, must have x_axis, y_axis, z_axis columns
 #' @param time_period_length The time period after of before the NA value
@@ -15,7 +16,6 @@ Impute <-
     function(data  ,
              time_period_length = 20 ,
              k = 5) {
-
         set.seed(100)
         # convert to second
         time_per_len <- lubridate::seconds(x = time_period_length)

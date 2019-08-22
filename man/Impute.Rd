@@ -2,7 +2,8 @@
 % Please edit documentation in R/Impute.R
 \name{Impute}
 \alias{Impute}
-\title{Title}
+\title{Title Impute NA values by randomly select k values whitin the time_period_length
+ and taking their average and using it to impute}
 \usage{
 Impute(data, time_period_length = 20, k = 5)
 }
@@ -17,5 +18,6 @@ Impute(data, time_period_length = 20, k = 5)
 main_df Imputed results
 }
 \description{
-Title
+Title Impute NA values by randomly select k values whitin the time_period_length
+ and taking their average and using it to impute
 }
