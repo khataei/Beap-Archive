@@ -401,10 +401,10 @@ ApplyModels <-
 
             model_name <- "kknn"
             train_control_method <- "none"
-            model_kmax <- 9
+            model_kmax <- 3
             model_kernel <- "optimal" # Normal unweighted KNN
             model_distance <-
-                2 # 1 for Manhatan , 2 for Euclidean distance
+                1 # 1 for Manhatan , 2 for Euclidean distance
 
 
             model_A <- train(
