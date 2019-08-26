@@ -5,8 +5,8 @@
 \title{Title Apply various ML models to your datasets and compare the results}
 \usage{
 ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
-  "DT"), split_ratio = 0.66, shrink = 1, save_results_on_disk = TRUE,
-  return_plots = TRUE)
+  "DT"), split_ratio = 0.66, scale_center = TRUE, cv_folds = 0,
+  shrink = 1, save_results_on_disk = TRUE, return_plots = TRUE)
 }
 \arguments{
 \item{working_df}{input dataset for classification}
@@ -14,6 +14,10 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
 \item{model_names}{a list of models to be appied on the data}
 
 \item{split_ratio}{training to test ratio}
+
+\item{scale_center}{If true, centers and scale the data before modeling}
+
+\item{cv_folds}{number of folds for cross-validation. Set to zero for not using cross-validation}
 
 \item{shrink}{the fraction of the data to be used for modeling. If modeling takes to long reduce this.}
 

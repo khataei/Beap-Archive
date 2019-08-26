@@ -6,6 +6,8 @@
 #' @param save_results_on_disk if set to true results are saved
 #' @param return_plots if true returns plots confusion matrix
 #' @param shrink the fraction of the data to be used for modeling. If modeling takes to long reduce this.
+#' @param scale_center If true, centers and scale the data before modeling
+#' @param cv_folds number of folds for cross-validation. Set to zero for not using cross-validation
 #'
 #' @return output a list containing a dataframe containing model names and accuracies and a list of plots
 #'
@@ -25,6 +27,8 @@ ApplyModels <-
     function(working_df,
              model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT"),
              split_ratio = 0.66,
+             scale_center = TRUE,
+             cv_folds = 0,
              shrink = 1,
              save_results_on_disk = TRUE,
              return_plots = TRUE) {
@@ -47,6 +51,15 @@ ApplyModels <-
 
         training_df <- working_df %>% dplyr::slice(training_indices)
         testing_df <- working_df %>% dplyr::slice(-training_indices)
+
+        if (scale_center) {
+            preProcValues <- preProcess(training_df, method = c("center", "scale"))
+            training_df <- predict(preProcValues, training_df)
+            testing_df <- predict(preProcValues, testing_df)
+            message("Data is scaled and centered")
+
+        }
+
         message(paste0("Data is devided into training and test set "))
         message(paste0(
             "Training set has ",
@@ -88,9 +101,17 @@ ApplyModels <-
             train_control_method <- "none"
             model_parameter <- 10
 
-            fitControl <-
-                trainControl(method = train_control_method, classProbs = TRUE)
-
+            if (cv_folds <= 0) {
+                fitControl <-
+                    trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+            {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
             model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
@@ -167,8 +188,19 @@ ApplyModels <-
             # The method is none becuase we have test and train data
             tic("RF took")
             message("Starting RF")
-            fitControl <-
+
+            if (cv_folds <= 0) {
+                fitControl <-
                 trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+                {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
+
             model_name <- "ranger"
             train_control_method <- "none"
             model_mtry <- 2
@@ -263,9 +295,17 @@ ApplyModels <-
             model_usekernel <- TRUE
             model_adjust <- 1.5
 
-            fitControl <-
-                trainControl(method = train_control_method  , classProbs =  TRUE)
-
+            if (cv_folds <= 0) {
+                fitControl <-
+                    trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+            {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
 
             model_A <- train(
                 trimmed_activity ~ .,
@@ -346,11 +386,22 @@ ApplyModels <-
             # using kknn package
             # The method is none becuase we have test and train data
             tic("KNN took")
-            fitControl <-
-                trainControl(method = "none", classProbs = TRUE)
+
+            if (cv_folds <= 0) {
+                fitControl <-
+                    trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+            {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
+
             model_name <- "kknn"
             train_control_method <- "none"
-            model_kmax <- 10
+            model_kmax <- 9
             model_kernel <- "optimal" # Normal unweighted KNN
             model_distance <-
                 2 # 1 for Manhatan , 2 for Euclidean distance
@@ -367,7 +418,7 @@ ApplyModels <-
                     kernel = model_kernel,
                     distance = model_distance
                 ),
-                metric = "Accuracy"
+                metric = "ROC"
             )
 
 
@@ -391,7 +442,7 @@ ApplyModels <-
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
             rownames(metrics) <- "KNN"
-                        accuracies  %<>%  rbind(metrics)
+            accuracies  %<>%  rbind(metrics)
 
             # CF need a different format of prediction results so recalcuate
             pred <- stats::predict(model_A, newdata = testing_df)
@@ -435,13 +486,24 @@ ApplyModels <-
             # The method is none becuase we have test and train data
             tic("SVM took")
             message("Starting SVM")
-            fitControl <-
-                trainControl(method = "none", classProbs = TRUE)
+
+            if (cv_folds <= 0) {
+                fitControl <-
+                    trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+            {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
+
             model_name <- "svmPoly"
             train_control_method <- "none"
             model_degree <- 3
             model_scale <- 1
-            model_C <- 0.1
+            model_C <- 0.01
 
             model_A <- train(
                 trimmed_activity ~ .,
@@ -525,9 +587,17 @@ ApplyModels <-
             model_model <- "C5.0"
             model_winnow <- FALSE
 
-            fitControl <-
-                trainControl(method = train_control_method, classProbs = TRUE)
-
+            if (cv_folds <= 0) {
+                fitControl <-
+                    trainControl(method = "none", classProbs = TRUE)
+                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+            } else if (cv_folds > 0)
+            {
+                cv_folds  %<>%  ceiling()
+                fitControl <-
+                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+                message(paste0(cv_folds, " fold cross-validation is being used"))
+            }
 
             model_A <- train(
                 trimmed_activity ~ .,
@@ -609,7 +679,7 @@ ApplyModels <-
             fname <- paste0("Model_results_", as.numeric(now()), ".RData")
             save(results,
                  file = fname)
-            message(paste0("The models are stored in", fname))
+            message(paste0("The models are stored in ", fname))
         }
 
 
