@@ -493,7 +493,7 @@ ApplyModels <-
                 message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
             } else if (cv_folds > 0)
             {
-                cv_folds  %<>%  ceiling()
+                cv_folds  <-  ceiling(cv_folds)
                 fitControl <-
                     trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
                 message(paste0(cv_folds, " fold cross-validation is being used"))
