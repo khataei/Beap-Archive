@@ -27,7 +27,7 @@ ApplyModels <-
     function(working_df,
              model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT"),
              split_ratio = 0.66,
-             scale_center = TRUE,
+             scale_center = FALSE,
              cv_folds = 0,
              shrink = 1,
              save_results_on_disk = TRUE,
