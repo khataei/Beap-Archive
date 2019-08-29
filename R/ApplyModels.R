@@ -633,8 +633,7 @@ ApplyModels <-
         output <-
             list(
                 "Model-Accuracy" = accuracies,
-                "Plots" = plts,
-                "Confusion-Matrices" = cf_mat
+                "Plots" = plts
             )
         return(output)
     }
