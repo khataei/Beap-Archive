@@ -211,7 +211,8 @@ GenerateFeatures <-
         data = .,
         width = window_size,
         by = window_size,
-        FUN = IQR
+        FUN =  function(a)
+          IQR(a, na.rm = T)
       ) %>%
       as.data.frame() %>%
       rename(
