@@ -67,6 +67,11 @@ GenerateFeatures <-
     pb$message(" --- Generating New Features ---")
     pb$tick(0)
 
+    # The following functions work on the x_axis, y_axis, z_axis columns
+    raw_df  %<>% dplyr::select(c(1,2,3))
+    colnames(raw_df) <- c("x_axis", "y_axis", "z_axis")
+
+
 
     # 1----------------- Sum ----------------- #
     sum_features <- raw_df %>%
