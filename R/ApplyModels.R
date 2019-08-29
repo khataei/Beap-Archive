@@ -387,6 +387,7 @@ ApplyModels <-
         if ("KNN" %in% model_names) {
             # using kknn package
             # The method is none becuase we have test and train data
+            message("Starting KNN")
             tic("KNN took")
 
             if (cv_folds <= 0) {
