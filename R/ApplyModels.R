@@ -8,6 +8,7 @@
 #' @param shrink the fraction of the data to be used for modeling. If modeling takes to long reduce this.
 #' @param scale_center If true, centers and scale the data before modeling
 #' @param cv_folds number of folds for cross-validation. Set to zero for not using cross-validation
+#' @param RF_mtry minimum number of featuresto be used by the random forest algorithm
 #'
 #' @return output a list containing a dataframe containing model names and accuracies and a list of plots
 #'
@@ -31,7 +32,8 @@ ApplyModels <-
              cv_folds = 0,
              shrink = 1,
              save_results_on_disk = TRUE,
-             return_plots = TRUE) {
+             return_plots = TRUE,
+             RF_mtry = 2) {
         # # Parallel and time to see if caret parallel works
         tic("Preprocessing")
         cl <- makePSOCKcluster(5)
@@ -203,7 +205,7 @@ ApplyModels <-
 
             model_name <- "ranger"
             train_control_method <- "none"
-            model_mtry <- 2
+            model_mtry <- RF_mtry
             model_splitrule <- "extratrees"
             model_min_node_size <- 10
 

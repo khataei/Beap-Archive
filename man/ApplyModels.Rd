@@ -6,7 +6,8 @@
 \usage{
 ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
   "DT"), split_ratio = 0.66, scale_center = FALSE, cv_folds = 0,
-  shrink = 1, save_results_on_disk = TRUE, return_plots = TRUE)
+  shrink = 1, save_results_on_disk = TRUE, return_plots = TRUE,
+  RF_mtry = 2)
 }
 \arguments{
 \item{working_df}{input dataset for classification}
@@ -24,6 +25,8 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
 \item{save_results_on_disk}{if set to true results are saved}
 
 \item{return_plots}{if true returns plots confusion matrix}
+
+\item{RF_mtry}{minimum number of featuresto be used by the random forest algorithm}
 }
 \value{
 output a list containing a dataframe containing model names and accuracies and a list of plots
