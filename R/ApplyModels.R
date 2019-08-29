@@ -36,7 +36,7 @@ ApplyModels <-
              RF_mtry = 2) {
         # # Parallel and time to see if caret parallel works
         tic("Preprocessing")
-        cl <- makePSOCKcluster(5)
+        cl <- makePSOCKcluster(3)
         registerDoParallel(cl)
 
         # Create train and test to train and evalute the model
