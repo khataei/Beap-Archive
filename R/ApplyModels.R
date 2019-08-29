@@ -95,6 +95,19 @@ ApplyModels <-
         toc()
 
 
+        if (cv_folds <= 0) {
+            fitControl <-
+                trainControl(method = "none", classProbs = TRUE)
+            message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
+        } else if (cv_folds > 0)
+        {
+            cv_folds  %<>%  ceiling()
+            fitControl <-
+                trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+            message(paste0(cv_folds, " fold cross-validation is being used"))
+        }
+
+
         # ------------------------------------- LDA --------------------------------------
         if ("LDA" %in% model_names) {
             tic("LDA took")
@@ -103,17 +116,6 @@ ApplyModels <-
             train_control_method <- "none"
             model_parameter <- 10
 
-            if (cv_folds <= 0) {
-                fitControl <-
-                    trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-            {
-                cv_folds  %<>%  ceiling()
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
             model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
@@ -190,18 +192,6 @@ ApplyModels <-
             # The method is none becuase we have test and train data
             tic("RF took")
             message("Starting RF")
-
-            if (cv_folds <= 0) {
-                fitControl <-
-                trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-                {
-                cv_folds  %<>%  ceiling()
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
 
             model_name <- "ranger"
             train_control_method <- "none"
@@ -297,18 +287,6 @@ ApplyModels <-
             model_usekernel <- TRUE
             model_adjust <- 1.5
 
-            if (cv_folds <= 0) {
-                fitControl <-
-                    trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-            {
-                cv_folds  %<>%  ceiling()
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
-
             model_A <- train(
                 trimmed_activity ~ .,
                 data = training_df,
@@ -381,8 +359,6 @@ ApplyModels <-
         }
 
 
-
-
         #----------------------------------- k-Nearest Neighbors -----------------------------------
         if ("KNN" %in% model_names) {
             # using kknn package
@@ -390,17 +366,6 @@ ApplyModels <-
             message("Starting KNN")
             tic("KNN took")
 
-            if (cv_folds <= 0) {
-                fitControl <-
-                    trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-            {
-                cv_folds  %<>%  ceiling()
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
 
             model_name <- "kknn"
             train_control_method <- "none"
@@ -490,18 +455,6 @@ ApplyModels <-
             tic("SVM took")
             message("Starting SVM")
 
-            if (cv_folds <= 0) {
-                fitControl <-
-                    trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-            {
-                cv_folds  <-  ceiling(cv_folds)
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
-
             model_name <- "svmPoly"
             train_control_method <- "none"
             model_degree <- 3
@@ -589,18 +542,6 @@ ApplyModels <-
             model_trails <- 10
             model_model <- "C5.0"
             model_winnow <- FALSE
-
-            if (cv_folds <= 0) {
-                fitControl <-
-                    trainControl(method = "none", classProbs = TRUE)
-                message("Cross-validation is not being used, set cv_folds to a positive number to use cross-validation")
-            } else if (cv_folds > 0)
-            {
-                cv_folds  %<>%  ceiling()
-                fitControl <-
-                    trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
-                message(paste0(cv_folds, " fold cross-validation is being used"))
-            }
 
             model_A <- train(
                 trimmed_activity ~ .,
