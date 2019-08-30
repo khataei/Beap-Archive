@@ -425,8 +425,11 @@ GenerateFeatures <-
           x_centralized <- x - median(x = x, na.rm = T)
           zcr <- 0
           for (i in 1:(window_size - 1)) {
-            if (x_centralized[i] * x_centralized[i + 1] < 0) {
-              zcr <- zcr + 1
+            if (!is.na(x_centralized[i] * x_centralized[i + 1])) {
+              if (x_centralized[i] * x_centralized[i + 1] < 0) {
+                # This is just good enough
+                zcr <- zcr + 1
+              }
             }
           }
           return(zcr)
