@@ -91,6 +91,9 @@ ApplyModels <-
         # To return main results for each model
         accuracies <- NULL
 
+        # to return RF feature importance
+        importance <- NULL
+
         # The end of preprocessing step
         toc()
 
@@ -273,8 +276,6 @@ ApplyModels <-
                     ggtitle("RF")
             }
             importance <- caret::varImp(model_A,scale = FALSE)
-            print(importance)
-            plot(importance)
             toc()
         }
 
@@ -637,7 +638,8 @@ ApplyModels <-
         output <-
             list(
                 "Model-Accuracy" = accuracies,
-                "Plots" = plts
+                "Plots" = plts,
+                "RF_Feature_Importance" = importance
             )
         return(output)
     }
