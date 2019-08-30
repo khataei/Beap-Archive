@@ -206,6 +206,7 @@ ApplyModels <-
                 method = model_name,
                 trControl = fitControl,
                 verbose = FALSE,
+                importance = "impurity",
                 tuneGrid = data.frame(
                     mtry = model_mtry,
                     splitrule = model_splitrule,
@@ -271,6 +272,9 @@ ApplyModels <-
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     ggtitle("RF")
             }
+            importance <- caret::varImp(model_A,scale = FALSE)
+            print(importance)
+            plot(importance)
             toc()
         }
 
