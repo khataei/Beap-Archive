@@ -29,7 +29,7 @@ ApplyModels(working_df, model_names = c("RF", "LDA", "NB", "SVM", "KNN",
 \item{RF_mtry}{minimum number of featuresto be used by the random forest algorithm}
 }
 \value{
-output a list containing a dataframe containing model names and accuracies and a list of plots
+output a list containing a dataframe containing model names and accuracies and a list of plots and feature importance
 }
 \description{
 Title Apply various ML models to your datasets and compare the results
