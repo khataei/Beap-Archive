@@ -3,6 +3,9 @@
 #' @param raw_df a dataframe which has at least three coluns, x_axis, y_axis, z_axis
 #' @param window_size_sec windows size in second
 #' @param frequency sampling frequency
+#' @param x_axis_column column number of x axis or
+#' @param y_axis_column
+#' @param z_axis_column
 #'
 #' @return new_features a dataset contaning generated features
 #' @export
@@ -36,8 +39,12 @@
 #'
 GenerateFeatures <-
   function(raw_df,
-             window_size_sec = 1,
-             frequency = 30) {
+           x_axis_column = 1,
+           y_axis_column = 2,
+           z_axis_column = 3,
+           window_size_sec = 1,
+
+           frequency = 30) {
     # ------------------------- Variable dictionary -------------------------- #
     # window_size_sec: windows size in second
     # frequency: dataset frequecny
@@ -62,14 +69,27 @@ GenerateFeatures <-
     # To show the progress
     pb <- progress_bar$new(
       format = "Creating features [:bar] :current/:total, time elapsed :elapsedfull",
-      total = 18, clear = F, width = 70
+      total = 18,
+      clear = F,
+      width = 70
     )
     pb$message(" --- Generating New Features ---")
     pb$tick(0)
 
     # The following functions work on the x_axis, y_axis, z_axis columns
-    raw_df  %<>% dplyr::select(c(1,2,3))
+    raw_df  %<>% dplyr::select(c(x_axis_column, y_axis_column, z_axis_column))
     colnames(raw_df) <- c("x_axis", "y_axis", "z_axis")
+    message(
+      paste0(
+        "Features will be generate for ",
+        x_axis_column,
+        ", ",
+        y_axis_column,
+        ", ",
+        z_axis_column,
+        " columns"
+      )
+    )
 
 
 
@@ -83,11 +103,9 @@ GenerateFeatures <-
         FUN = sum
       ) %>%
       as.data.frame() %>%
-      rename(
-        "sum_x" = x_axis,
-        "sum_y" = y_axis,
-        "sum_z" = z_axis
-      )
+      rename("sum_x" = x_axis,
+             "sum_y" = y_axis,
+             "sum_z" = z_axis)
 
     new_features %<>% bind_cols(sum_features)
     pb$tick()
@@ -104,14 +122,12 @@ GenerateFeatures <-
         width = window_size,
         by = window_size,
         FUN = function(x)
-          sum(x^2)
+          sum(x ^ 2)
       ) %>%
       as.data.frame() %>%
-      rename(
-        "snp_x" = x_axis,
-        "snp_y" = y_axis,
-        "snp_z" = z_axis
-      )
+      rename("snp_x" = x_axis,
+             "snp_y" = y_axis,
+             "snp_z" = z_axis)
 
     new_features %<>% bind_cols(snp_features)
     pb$tick()
@@ -129,11 +145,9 @@ GenerateFeatures <-
         FUN = mean
       ) %>%
       as.data.frame() %>%
-      rename(
-        "mean_x" = x_axis,
-        "mean_y" = y_axis,
-        "mean_z" = z_axis
-      )
+      rename("mean_x" = x_axis,
+             "mean_y" = y_axis,
+             "mean_z" = z_axis)
 
     new_features %<>% bind_cols(mean_features)
     pb$tick()
@@ -151,11 +165,9 @@ GenerateFeatures <-
         FUN = sd
       ) %>%
       as.data.frame() %>%
-      rename(
-        "sd_x" = x_axis,
-        "sd_y" = y_axis,
-        "sd_z" = z_axis
-      )
+      rename("sd_x" = x_axis,
+             "sd_y" = y_axis,
+             "sd_z" = z_axis)
 
     new_features %<>% bind_cols(sd_features)
     pb$tick()
@@ -168,11 +180,9 @@ GenerateFeatures <-
     # The ratio of the standard deviation to the mean.
     # The higher the coefficient of variation, the greater the level of dispersion around the mean.
     cv_feature <- sd_features / mean_features
-    cv_feature %<>% rename(
-      "cv_x" = sd_x,
-      "cv_y" = sd_y,
-      "cv_z" = sd_z
-    )
+    cv_feature %<>% rename("cv_x" = sd_x,
+                           "cv_y" = sd_y,
+                           "cv_z" = sd_z)
 
     new_features %<>% bind_cols(cv_feature)
     pb$tick()
@@ -192,11 +202,9 @@ GenerateFeatures <-
           max(a) - min(a)
       ) %>%
       as.data.frame() %>%
-      rename(
-        "amp_x" = x_axis,
-        "amp_y" = y_axis,
-        "amp_z" = z_axis
-      )
+      rename("amp_x" = x_axis,
+             "amp_y" = y_axis,
+             "amp_z" = z_axis)
 
     new_features %<>% bind_cols(amp_features)
     pb$tick()
@@ -215,11 +223,9 @@ GenerateFeatures <-
           IQR(a, na.rm = T)
       ) %>%
       as.data.frame() %>%
-      rename(
-        "iqr_x" = x_axis,
-        "iqr_y" = y_axis,
-        "iqr_z" = z_axis
-      )
+      rename("iqr_x" = x_axis,
+             "iqr_y" = y_axis,
+             "iqr_z" = z_axis)
 
     new_features %<>% bind_cols(iqr_features)
     pb$tick()
@@ -295,11 +301,9 @@ GenerateFeatures <-
           )[["acf"]][2]
       ) %>%
       as.data.frame() %>%
-      rename(
-        "acf_x" = x_axis,
-        "acf_y" = y_axis,
-        "acf_z" = z_axis
-      )
+      rename("acf_x" = x_axis,
+             "acf_y" = y_axis,
+             "acf_z" = z_axis)
 
     new_features %<>% bind_cols(acf_features)
     pb$tick()
@@ -319,11 +323,9 @@ GenerateFeatures <-
           e1071::skewness(x, na.rm = T)
       ) %>%
       as.data.frame() %>%
-      rename(
-        "skw_x" = x_axis,
-        "skw_y" = y_axis,
-        "skw_z" = z_axis
-      )
+      rename("skw_x" = x_axis,
+             "skw_y" = y_axis,
+             "skw_z" = z_axis)
 
     new_features %<>% bind_cols(skw_features)
     pb$tick()
@@ -341,11 +343,9 @@ GenerateFeatures <-
           e1071::kurtosis(x, na.rm = T)
       ) %>%
       as.data.frame() %>%
-      rename(
-        "krt_x" = x_axis,
-        "krt_y" = y_axis,
-        "krt_z" = z_axis
-      )
+      rename("krt_x" = x_axis,
+             "krt_y" = y_axis,
+             "krt_z" = z_axis)
 
     new_features %<>% bind_cols(krt_features)
     pb$tick()
@@ -363,14 +363,12 @@ GenerateFeatures <-
         width = window_size,
         by = window_size,
         FUN = function(x)
-          sum(log(x^2 + 1))
+          sum(log(x ^ 2 + 1))
       ) %>%
       as.data.frame() %>%
-      rename(
-        "sle_x" = x_axis,
-        "sle_y" = y_axis,
-        "sle_z" = z_axis
-      )
+      rename("sle_x" = x_axis,
+             "sle_y" = y_axis,
+             "sle_z" = z_axis)
 
     new_features %<>% bind_cols(sle_features)
     pb$tick()
@@ -398,11 +396,9 @@ GenerateFeatures <-
         }
       ) %>%
       as.data.frame() %>%
-      rename(
-        "pin_x" = x_axis,
-        "pin_y" = y_axis,
-        "pin_z" = z_axis
-      )
+      rename("pin_x" = x_axis,
+             "pin_y" = y_axis,
+             "pin_z" = z_axis)
 
     new_features %<>% bind_cols(pin_features)
     pb$tick()
@@ -436,11 +432,9 @@ GenerateFeatures <-
         }
       ) %>%
       as.data.frame() %>%
-      rename(
-        "zcr_x" = x_axis,
-        "zcr_y" = y_axis,
-        "zcr_z" = z_axis
-      )
+      rename("zcr_x" = x_axis,
+             "zcr_y" = y_axis,
+             "zcr_z" = z_axis)
 
     new_features %<>% bind_cols(zcr_features)
     pb$tick()
@@ -457,15 +451,13 @@ GenerateFeatures <-
         by = window_size,
         FUN = function(x) {
           FT <- fft(x)
-          return(max(Re(FT^2)))
+          return(max(Re(FT ^ 2)))
         }
       ) %>%
       as.data.frame() %>%
-      rename(
-        "dfr_x" = x_axis,
-        "dfr_y" = y_axis,
-        "dfr_z" = z_axis
-      )
+      rename("dfr_x" = x_axis,
+             "dfr_y" = y_axis,
+             "dfr_z" = z_axis)
 
     new_features %<>% bind_cols(dfr_features)
     pb$tick()
@@ -482,16 +474,14 @@ GenerateFeatures <-
         by = window_size,
         FUN = function(x) {
           FT <- fft(x)
-          idx <- which.max(Re(FT^2))
+          idx <- which.max(Re(FT ^ 2))
           return(Re(FT[idx]))
         }
       ) %>%
       as.data.frame() %>%
-      rename(
-        "adf_x" = x_axis,
-        "adf_y" = y_axis,
-        "adf_z" = z_axis
-      )
+      rename("adf_x" = x_axis,
+             "adf_y" = y_axis,
+             "adf_z" = z_axis)
 
     new_features %<>% bind_cols(adf_features)
     pb$tick()
@@ -520,11 +510,9 @@ GenerateFeatures <-
         }
       ) %>%
       as.data.frame() %>%
-      rename(
-        "ent_x" = x_axis,
-        "ent_y" = y_axis,
-        "ent_z" = z_axis
-      )
+      rename("ent_x" = x_axis,
+             "ent_y" = y_axis,
+             "ent_z" = z_axis)
 
     new_features %<>% bind_cols(ent_features)
     pb$tick()
@@ -541,7 +529,8 @@ GenerateFeatures <-
     # 4. ntile for the magnitude calculated in the first step
 
     # 1.
-    vec_mag <- sqrt(raw_df$x_axis^2 + raw_df$y_axis^2 + raw_df$z_axis^2) %>%
+    vec_mag <-
+      sqrt(raw_df$x_axis ^ 2 + raw_df$y_axis ^ 2 + raw_df$z_axis ^ 2) %>%
       as.data.frame()
 
     vec_mag_features <- vec_mag %>%
@@ -560,7 +549,9 @@ GenerateFeatures <-
 
 
     # 3.
-    vec_mag_mean_feature <- sqrt(mean_features$mean_x^2 + mean_features$mean_y^2 + mean_features$mean_z^2) %>%
+    vec_mag_mean_feature <-
+      sqrt(mean_features$mean_x ^ 2 + mean_features$mean_y ^ 2 + mean_features$mean_z ^
+             2) %>%
       as.data.frame()
     colnames(vec_mag_mean_feature) <- "vec_mag_mean"
     new_features %<>% bind_cols(vec_mag_features, vec_mag_g_features, vec_mag_mean_feature)
