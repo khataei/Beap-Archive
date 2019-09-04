@@ -10,7 +10,7 @@
 #' @param cv_folds number of folds for cross-validation. Set to zero for not using cross-validation
 #' @param RF_mtry minimum number of featuresto be used by the random forest algorithm
 #'
-#' @return output a list containing a dataframe containing model names and accuracies and a list of plots
+#' @return output a list containing a dataframe containing model names and accuracies and a list of plots and feature importance
 #'
 #' @import caret
 #' @importFrom rlang .data
