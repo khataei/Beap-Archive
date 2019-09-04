@@ -4,8 +4,8 @@
 #' @param window_size_sec windows size in second
 #' @param frequency sampling frequency
 #' @param x_axis_column column number of x axis or
-#' @param y_axis_column
-#' @param z_axis_column
+#' @param y_axis_column column number of y axis or
+#' @param z_axis_column column number of z axis or
 #'
 #' @return new_features a dataset contaning generated features
 #' @export
@@ -43,7 +43,7 @@ GenerateFeatures <-
            y_axis_column = 2,
            z_axis_column = 3,
            window_size_sec = 1,
-
+           overlap_sec = 0,
            frequency = 30) {
     # ------------------------- Variable dictionary -------------------------- #
     # window_size_sec: windows size in second
@@ -53,7 +53,9 @@ GenerateFeatures <-
 
 
 
-    window_size <- window_size_sec * frequency
+    window_size <- round(window_size_sec * frequency, digits = 0)
+    overlap <- round(overlap_sec * frequency, digits =  0)
+    distance <- window_size - overlap
 
     # Cannot use a window if the window size is not integer
     if (window_size %% 1 != 0) {
@@ -99,7 +101,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = sum
       ) %>%
       as.data.frame() %>%
@@ -120,7 +122,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           sum(x ^ 2)
       ) %>%
@@ -141,7 +143,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = mean
       ) %>%
       as.data.frame() %>%
@@ -161,7 +163,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = sd
       ) %>%
       as.data.frame() %>%
@@ -197,7 +199,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(a)
           max(a) - min(a)
       ) %>%
@@ -218,7 +220,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN =  function(a)
           IQR(a, na.rm = T)
       ) %>%
@@ -241,7 +243,7 @@ GenerateFeatures <-
       rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           cor(x[, 1], x[, 2]),
         by.column = FALSE # If TRUE, FUN is applied to each column separately
@@ -255,7 +257,7 @@ GenerateFeatures <-
       rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           cor(x[, 1], x[, 2]),
         by.column = FALSE # If TRUE, FUN is applied to each column separately
@@ -269,7 +271,7 @@ GenerateFeatures <-
       rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           cor(x[, 1], x[, 2]),
         by.column = FALSE # If TRUE, FUN is applied to each column separately
@@ -291,7 +293,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           acf(
             x,
@@ -318,7 +320,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           e1071::skewness(x, na.rm = T)
       ) %>%
@@ -338,7 +340,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           e1071::kurtosis(x, na.rm = T)
       ) %>%
@@ -361,7 +363,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x)
           sum(log(x ^ 2 + 1))
       ) %>%
@@ -386,7 +388,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x) {
           x <- round(x = x, digits = 3)
           max_of_window <- max(x)
@@ -416,7 +418,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x) {
           x_centralized <- x - median(x = x, na.rm = T)
           zcr <- 0
@@ -448,7 +450,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x) {
           FT <- fft(x)
           return(max(Re(FT ^ 2)))
@@ -471,7 +473,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x) {
           FT <- fft(x)
           idx <- which.max(Re(FT ^ 2))
@@ -500,7 +502,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = function(x) {
           probabilities <- prop.table(table(x))
           return(-sum(probabilities * log2(probabilities)))
@@ -537,7 +539,7 @@ GenerateFeatures <-
       zoo::rollapply(
         data = .,
         width = window_size,
-        by = window_size,
+        by = distance,
         FUN = mean
       ) %>%
       as.data.frame()
