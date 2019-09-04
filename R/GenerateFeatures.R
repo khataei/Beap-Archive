@@ -57,12 +57,10 @@ GenerateFeatures <-
     overlap <- round(overlap_sec * frequency, digits =  0)
     distance <- window_size - overlap
 
-    # Cannot use a window if the window size is not integer
-    if (window_size %% 1 != 0) {
-      message("Warning: The window size is not an integer, truncing the window size:")
-      window_size <- trunc(window_size)
-      message(paste0("window size is set to ", window_size))
-    }
+
+    message(paste0("The window size is set to: ",window_size, " observations"))
+
+    message(paste0("overlap size is set to ", overlap," observations"))
 
     # create empty dataframe to store all the new features
     new_features <- NULL
