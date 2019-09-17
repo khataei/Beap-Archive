@@ -42,7 +42,7 @@ ApplyModels <-
         tic("Preprocessing")
 
         if (cores != 1) {
-            message("Parallel cumpting is activated!")
+            message("Parallel computing is activated!")
             cl <- makePSOCKcluster(cores)
             registerDoParallel(cl)
         }
