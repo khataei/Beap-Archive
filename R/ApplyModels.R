@@ -10,6 +10,7 @@
 #' @param cv_folds number of folds for cross-validation. Set to zero for not using cross-validation
 #' @param RF_mtry minimum number of featuresto be used by the random forest algorithm
 #' @param cores number of cores. For parallel computing set it to an integer greater than 1
+#' @param min_node_size minimum number of nodes for the random forest model
 #'
 #' @return output a list containing a dataframe containing model names and accuracies and a list of plots and feature importance
 #'
@@ -35,6 +36,7 @@ ApplyModels <-
              save_results_on_disk = TRUE,
              return_plots = TRUE,
              RF_mtry = 2,
+             min_node_size = 50,
              cores = 1) {
         # # Parallel and time to see if caret parallel works
         tic("Preprocessing")
@@ -210,7 +212,7 @@ ApplyModels <-
             train_control_method <- "none"
             model_mtry <- RF_mtry
             model_splitrule <- "extratrees"
-            model_min_node_size <- 10
+            model_min_node_size <- min_node_size
 
 
             model_A <- train(
