@@ -44,6 +44,9 @@ ApplyModels <-
             cl <- makePSOCKcluster(cores)
             registerDoParallel(cl)
         }
+        else {
+            message("parallel computing is not activated. For parallel computing set it to an integer greater than 1")
+        }
 
 
         # Create train and test to train and evalute the model
