@@ -9,6 +9,7 @@
 #' @param scale_center If true, centers and scale the data before modeling
 #' @param cv_folds number of folds for cross-validation. Set to zero for not using cross-validation
 #' @param RF_mtry minimum number of featuresto be used by the random forest algorithm
+#' @param cores number of cores. For parallel computing set it to an integer greater than 1
 #'
 #' @return output a list containing a dataframe containing model names and accuracies and a list of plots and feature importance
 #'
@@ -33,11 +34,17 @@ ApplyModels <-
              shrink = 1,
              save_results_on_disk = TRUE,
              return_plots = TRUE,
-             RF_mtry = 2) {
+             RF_mtry = 2,
+             cores = 1) {
         # # Parallel and time to see if caret parallel works
         tic("Preprocessing")
-        cl <- makePSOCKcluster(2)
-        registerDoParallel(cl)
+
+        if (cores != 1) {
+            message("Parallel cumpting is activated!")
+            cl <- makePSOCKcluster(cores)
+            registerDoParallel(cl)
+        }
+
 
         # Create train and test to train and evalute the model
         seed <- 2020
@@ -632,8 +639,12 @@ ApplyModels <-
         }
 
 
-        # To stop parallel calculation
-        stopCluster(cl)
+        if (cores != 1) {
+            # To stop parallel calculation
+            stopCluster(cl)
+        }
+
+
 
         output <-
             list(
