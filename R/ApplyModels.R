@@ -298,9 +298,9 @@ ApplyModels <-
             message("XGB")
             model_name <- "xgbTree"
             train_control_method <- "none"
-            model_max_depth <- 10
-            model_nrounds<- 100
-            model_eta <- 0.8
+            model_max_depth <- 4
+            model_nrounds<- 500
+            model_eta <- 0.4
             model_min_child_weight <- 1
             model_subsample <- 1
             model_gamma <- 1
