@@ -295,12 +295,16 @@ ApplyModels <-
         #------------------------------ Boosting Trees----------------------
         if ("XGB" %in% model_names) {
             tic("XGB took")
-            message("XGB RF")
+            message("XGB")
             model_name <- "xgbTree"
             train_control_method <- "none"
-            model_mtry <- RF_mtry
-            model_splitrule <- "extratrees"
-            model_min_node_size <- min_node_size
+            model_max_depth <- 10
+            model_nrounds<- 100
+            model_eta <- 0.8
+            model_min_child_weight <- 1
+            model_subsample <- 1
+            model_gamma <- 1
+            model_colsample_bytree <- 1
 
 
             model_A <- train(
@@ -311,9 +315,14 @@ ApplyModels <-
                 verbose = FALSE,
                 importance = "impurity",
                 tuneGrid = data.frame(
-                    mtry = model_mtry,
-                    splitrule = model_splitrule,
-                    min.node.size = model_min_node_size
+                    max_depth = model_max_depth,
+                    nrounds = model_nrounds,
+                    eta = model_eta,
+                    min_child_weight = model_min_child_weight,
+                    subsample = model_subsample,
+                    gamma = model_gamma,
+                    colsample_bytree = model_colsample_bytree
+
                 ),
                 metric = "ROC"
             )
@@ -360,7 +369,9 @@ ApplyModels <-
                     model_name = model_name,
                     model = model_A,
                     train_control_method = train_control_method,
-                    tune_parameters = c(model_mtry, model_splitrule, model_min_node_size),
+                    tune_parameters = c(model_max_depth, model_nrounds, model_eta,
+                                        model_min_child_weight,model_subsample,
+                                        model_gamma,model_colsample_bytree),
                     cf_matrix = cf_matrix
                 )
 
