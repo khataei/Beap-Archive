@@ -28,7 +28,7 @@
 #'
 ApplyModels <-
     function(working_df,
-             model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT"),
+             model_names = c("RF", "LDA", "NB", "SVM", "KNN" , "DT", "XGB"),
              split_ratio = 0.66,
              scale_center = FALSE,
              cv_folds = 0,
@@ -201,6 +201,7 @@ ApplyModels <-
 
 
 
+
         #------------------------------ Random Forest _ Ranger package----------------------
         if ("RF" %in% model_names) {
             # Ranger is a fast implementation of random forests (Breiman 2001)
@@ -250,7 +251,7 @@ ApplyModels <-
             metrics  %<>% data.table::transpose()
             colnames(metrics) <- metric_names
             rownames(metrics) <- "RF"
-                        accuracies  %<>%  rbind(metrics)
+            accuracies  %<>%  rbind(metrics)
 
 
             # CF need a different format of prediction results so recalcuate
@@ -290,6 +291,94 @@ ApplyModels <-
             importance <- caret::varImp(model_A,scale = FALSE)
             toc()
         }
+
+        #------------------------------ Boosting Trees----------------------
+        if ("XGB" %in% model_names) {
+            tic("XGB took")
+            message("XGB RF")
+            model_name <- "xgbTree"
+            train_control_method <- "none"
+            model_mtry <- RF_mtry
+            model_splitrule <- "extratrees"
+            model_min_node_size <- min_node_size
+
+
+            model_A <- train(
+                trimmed_activity ~ .,
+                data = training_df,
+                method = model_name,
+                trControl = fitControl,
+                verbose = FALSE,
+                importance = "impurity",
+                tuneGrid = data.frame(
+                    mtry = model_mtry,
+                    splitrule = model_splitrule,
+                    min.node.size = model_min_node_size
+                ),
+                metric = "ROC"
+            )
+
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # To calculate area AUC we need probabilies and predicted classes in a single dataframe
+            pred_prob <-
+                data.frame(obs =  testing_df$trimmed_activity,
+                           pred = pred)
+            pred <-
+                stats::predict(model_A, newdata = testing_df, type = "prob")
+            pred_prob <- bind_cols(pred_prob, pred)
+
+            # Calculate different metrics
+            metrics <-
+                multiClassSummary(data = pred_prob,
+                                  lev = levels(testing_df$trimmed_activity)) %>%
+                as.data.frame()
+            # Return the metric in a nicer format
+            metric_names <- rownames(metrics)
+            metrics  %<>% data.table::transpose()
+            colnames(metrics) <- metric_names
+            rownames(metrics) <- "XGB"
+            accuracies  %<>%  rbind(metrics)
+
+
+            # CF need a different format of prediction results so recalcuate
+            pred <- stats::predict(model_A, newdata = testing_df)
+
+            # Calculate confusion matrix
+            cf_matrix <-
+                confusionMatrix(
+                    data = pred,
+                    reference = testing_df$trimmed_activity,
+                    mode = "prec_recall"
+                )
+
+
+            # Create a list of the model and the results to save
+            results[["XGB"]] <-
+                list(
+                    split_seed = seed,
+                    model_name = model_name,
+                    model = model_A,
+                    train_control_method = train_control_method,
+                    tune_parameters = c(model_mtry, model_splitrule, model_min_node_size),
+                    cf_matrix = cf_matrix
+                )
+
+
+            if (return_plots) {
+                plts[["XGB"]] <- cf_matrix$table %>%
+                    data.frame() %>%
+                    ggplot2::ggplot(aes(Prediction, Reference)) +
+                    geom_tile(aes(fill = Freq), colour = "gray50") +
+                    scale_fill_gradient(low = "beige", high = muted("chocolate")) +
+                    geom_text(aes(label = Freq)) +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                    ggtitle("XGB")
+            }
+            importance <- caret::varImp(model_A,scale = FALSE)
+            toc()
+        }
+
 
 
 
