@@ -543,9 +543,10 @@ GenerateFeatures <-
       as.data.frame()
     colnames(vec_mag_features) <- "vec_mag"
 
-    # 2.
-    vec_mag_g_features <- vec_mag_features - 0.9808
-    colnames(vec_mag_g_features) <- "vec_mag-g"
+    # commented out due to multicollinearity with vec_mag
+    # # 2.
+    # vec_mag_g_features <- vec_mag_features - 0.9808
+    # colnames(vec_mag_g_features) <- "vec_mag-g"
 
 
     # 3.
