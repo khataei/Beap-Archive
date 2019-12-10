@@ -544,6 +544,7 @@ GenerateFeatures <-
     colnames(vec_mag_features) <- "vec_mag"
 
     # commented out due to multicollinearity with vec_mag
+    # Also line 559(new_features %<>% bind_cols(vec_mag_features, vec_mag_g_features, vec_mag_mean_feature)) is edited
     # # 2.
     # vec_mag_g_features <- vec_mag_features - 0.9808
     # colnames(vec_mag_g_features) <- "vec_mag-g"
@@ -555,7 +556,7 @@ GenerateFeatures <-
              2) %>%
       as.data.frame()
     colnames(vec_mag_mean_feature) <- "vec_mag_mean"
-    new_features %<>% bind_cols(vec_mag_features, vec_mag_g_features, vec_mag_mean_feature)
+    new_features %<>% bind_cols(vec_mag_features, vec_mag_mean_feature)
 
 
     # 4.
